@@ -1,0 +1,16 @@
+#new-post{
+    padding: 20px;
+}
+
+textarea {
+    min-height: 200px;
+    min-width: 600px;
+
+}
+
+.submit-btn{
+    color: white;
+    background-color: blue;
+    border-radius: 5px;
+    font-weight: bold;
+}
