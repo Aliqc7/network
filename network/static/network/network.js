@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.querySelector("#show-all-posts").onclick = (event) =>{
         event.preventDefault();
+        all_posts_div.innerHTML = ""
         all_posts_div.style.display = "block"
         fetch("/show_all_posts")
         .then(response => response.json())
