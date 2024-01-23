@@ -69,6 +69,9 @@ def register(request):
 
 @login_required
 @csrf_exempt
+
+# TODO: Configure csrf
+
 def new_post(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
@@ -81,4 +84,11 @@ def new_post(request):
         new_post = Post.objects.create(user = request.user, text = text, timestamp = timestamp)
         new_post.save()
         return JsonResponse({"message": "Post Submitted Successfully."}, status=201)
-   
+
+
+
+@login_required
+# @csrf_exempt ### There is not need for this as we are not posting anything. 
+def show_all_posts(request):
+    posts = Post.objects.all().order_by("timestamp")
+    return JsonResponse([post.serialize() for post in posts], safe=False)
