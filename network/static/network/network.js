@@ -11,6 +11,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     }
 
+    all_posts_div.addEventListener("click", function(event) {
+        if (event.target.classList.contains("user-profile")) {
+            event.preventDefault();
+            console.log(event.target);
+            alert("link clicked");
+            console.log("hi");
+        }
+    });
+
+
     document.querySelector("#show-all-posts").onclick = (event) =>{
         event.preventDefault();
         all_posts_div.innerHTML = ""
@@ -23,9 +33,20 @@ document.addEventListener("DOMContentLoaded", function() {
                 div_element.style.border = '1px solid black'
                 div_element.style.margin = '2px'
                 div_element.style.textAlign = 'center'
-                div_element.innerHTML = `User: ${post.user} ---- Content: /
-                ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0 `;
-                all_posts_div.append(div_element)
+                const userProfileLink = document.createElement("a");
+                userProfileLink.href = "#";  
+                userProfileLink.classList.add("user-profile");
+                userProfileLink.textContent = post.user;
+                
+                // Attach click event listener to the user profile link
+
+                // Append user profile link and other content to the div
+                div_element.appendChild(document.createTextNode("User: "));
+                div_element.appendChild(userProfileLink);
+                div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
+
+                // Append the div to all_posts_div
+                all_posts_div.appendChild(div_element);
             }
             ) 
             
