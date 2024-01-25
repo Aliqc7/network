@@ -92,3 +92,43 @@ def new_post(request):
 def show_all_posts(request):
     posts = Post.objects.all().order_by("timestamp")
     return JsonResponse([post.serialize() for post in posts], safe=False)
+
+@login_required
+def show_user(request, username):
+    user = User.objects.get(username = username)
+    return JsonResponse(user.serialize())
+
+@login_required
+def show_user_posts(request, username):
+    user = User.objects.get(username = username)
+    posts = Post.objects.filter(user = user).order_by("timestamp")
+    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+def get_username(request):
+
+    username = request.user.username
+    return JsonResponse({
+        "username": username
+    })
+
+@csrf_exempt
+def follow_user(request, username):
+    if request.method == "PUT":
+        user = User.objects.get(username = username)
+        following_user = request.user
+        is_follower = user.followers.filter(pk=following_user.pk).exists()
+        if not is_follower:
+            user.followers.add(following_user)
+            message = "User followed successfully!"
+        else:
+            user.followers.remove(following_user)
+            message = "User unfollowed successfully!"
+
+        user.save()
+        return JsonResponse({
+            "message": message
+        }, status=200)
+    else:
+        return JsonResponse({
+            "error": "PUT request required."
+        }, status=400)

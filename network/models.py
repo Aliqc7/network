@@ -3,11 +3,18 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    followers = models.ManyToManyField("self", symmetrical=False, related_name="following", blank=True)
+
+    def serialize(self):
+        return {
+            "username": self.username,
+            "followers": [follower.username for follower in self.followers.all()],
+            "following": [following.username for following in self.following.all()]
+        }
 
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, related_name = "posts")
+    user = models.ForeignKey("User", on_delete = models.CASCADE, related_name = "posts")
     timestamp = models.DateTimeField()
     text = models.TextField()
 
