@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 if (this_user !== username){
                     const follow_div = document.querySelector("#follow")
+                    follow_div.innerHTML = ""
                     const follow_button = document.createElement("button");
                     follow_button.setAttribute("id", "follow-btn");
                     if (!followers.includes(this_user)){
@@ -149,6 +150,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(result => {
             console.log(result);
         });
+        this.reset()
     }
 
 })
