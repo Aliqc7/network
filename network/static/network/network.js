@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const new_post_form = document.querySelector("#new-post");
     const user_profile_div = document.querySelector("#user-profile-view");
     const navigation_div = document.querySelector("#navigation");
+    const follow_div = document.querySelector("#follow")
+    follow_div.style.display = "none";
     new_post_form.style.display = "none";
     all_posts_div.style.display = "none";
     user_profile_div.style.display = "none";
@@ -18,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function() {
     all_posts_div.addEventListener("click", function(event) {
         if (event.target.classList.contains("user-profile")) {
             event.preventDefault();
+            follow_div.innerHTML = ""
+            follow_div.style.display = "block"
             all_posts_div.style.display = "none";
             navigation_div.style.display = "none";
             user_profile_div.style.display = "block";
@@ -48,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const this_user = data.username;
 
                 if (this_user !== username){
-                    const follow_div = document.querySelector("#follow")
+
                     follow_div.innerHTML = ""
                     const follow_button = document.createElement("button");
                     follow_button.setAttribute("id", "follow-btn");
@@ -64,29 +68,6 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             show_posts(username, "user", 1)
-
-            // fetch(`show_user_posts/${username}`)
-            // .then(response => response.json())
-            // .then(posts =>{
-            //     const user_posts = document.querySelector("#user-posts");
-            //     user_posts.innerHTML = ""
-            //     posts.forEach((post) =>{
-            //         const div_element = document.createElement("div");
-            //         div_element.style.border = '1px solid black'
-            //         div_element.style.margin = '2px'
-            //         div_element.style.textAlign = 'center'
-            //         div_element.appendChild(document.createTextNode(`Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
-            //         user_posts.append(div_element)
-                    
-            //     }
-
-            //     )
-            // });
-
-            
-
-            
-
         }
     });
 
@@ -98,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.addEventListener("click", function(event) {
         if (event.target.id === "follow-btn") {
 
-           const username = document.querySelector("#username").textContent
+           const username = localStorage.getItem("profile_user")
 
             fetch(`follow_user/${username}`, {
                 method: "PUT",
@@ -179,38 +160,6 @@ document.addEventListener("DOMContentLoaded", function() {
         localStorage.setItem("posts_to_show", posts_to_show)
 
     }
-
-    // function show_following_posts() {
-    //     const username = document.querySelector("#username").textContent
-        
-    //     user_profile_div.style.display = "none";
-    //     navigation_div.style.display = "none";
-    //     all_posts_div.innerHTML = ""
-    //     all_posts_div.style.display = "block"
-    //     fetch(`/show_following_posts/${username}`)
-    //     .then(response => response.json())
-    //     .then(posts => {
-    //         posts.forEach((post) =>{
-    //             const div_element = document.createElement("div");
-    //             div_element.style.border = '1px solid black'
-    //             div_element.style.margin = '2px'
-    //             div_element.style.textAlign = 'center'
-    //             const userProfileLink = document.createElement("a");
-    //             userProfileLink.href = "#";  
-    //             userProfileLink.classList.add("user-profile");
-    //             userProfileLink.textContent = post.user;
-            
-    //             div_element.appendChild(document.createTextNode("User: "));
-    //             div_element.appendChild(userProfileLink);
-    //             div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
-
-    //             all_posts_div.appendChild(div_element);
-    //         }
-    //         ) 
-            
-    //     });
-    // }
-
 
 
     function show_posts(username, posts_to_show, page_number) {

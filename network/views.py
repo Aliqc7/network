@@ -89,14 +89,14 @@ def new_post(request):
 
 
 @login_required
-# @csrf_exempt ### There is not need for this as we are not posting anything. 
 def show_posts(request, username, posts_to_show, page_number):
     if username == "all":
         posts = Post.objects.all().order_by("timestamp")
 
     elif posts_to_show == "following":
         user = User.objects.get(username = username)
-        posts = Post.objects.filter(user = user).order_by("timestamp")
+        following = user.following.all()
+        posts = Post.objects.filter(user__in=following).order_by("timestamp")
 
     elif posts_to_show =="user":
         user = User.objects.get(username = username)
@@ -119,13 +119,6 @@ def show_user(request, username):
     user = User.objects.get(username = username)
     return JsonResponse(user.serialize())
 
-# # TODO: remove after combining the show post functions. 
-
-# @login_required
-# def show_user_posts(request, username):
-#     user = User.objects.get(username = username)
-#     posts = Post.objects.filter(user = user).order_by("timestamp")
-#     return JsonResponse([post.serialize() for post in posts], safe=False)
 
 def get_username(request):
 
