@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
+from django.core.paginator import Paginator
 
 from .models import User, Post
 
@@ -89,9 +90,18 @@ def new_post(request):
 
 @login_required
 # @csrf_exempt ### There is not need for this as we are not posting anything. 
-def show_all_posts(request):
+def show_all_posts(request, page_number):
     posts = Post.objects.all().order_by("timestamp")
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    paginator = Paginator(posts, 10)
+    last_page = paginator.num_pages
+    page_object = paginator.get_page(page_number) 
+    serial_posts = [post.serialize() for post in page_object.object_list]
+    
+    return JsonResponse({
+        "posts": serial_posts,
+        "page_number": page_number,
+        "last_page": last_page
+    }, safe=False)
 
 @login_required
 def show_user(request, username):

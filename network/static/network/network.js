@@ -3,9 +3,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const all_posts_div = document.querySelector("#all-posts");
     const new_post_form = document.querySelector("#new-post");
     const user_profile_div = document.querySelector("#user-profile-view");
+    const navigation_div = document.querySelector("#navigation");
     new_post_form.style.display = "none";
     all_posts_div.style.display = "none";
     user_profile_div.style.display = "none";
+    navigation_div.style.display = "none";
 
     document.querySelector("#create-new-post").onclick = (event) =>{
         event.preventDefault();
@@ -17,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (event.target.classList.contains("user-profile")) {
             event.preventDefault();
             all_posts_div.style.display = "none";
+            navigation_div.style.display = "none";
             user_profile_div.style.display = "block";
             const username = event.target.textContent;
             fetch(`show_user/${username}`)
@@ -85,41 +88,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-
-    document.querySelector("#show-all-posts").onclick = (event) =>{
+    document.querySelector("#show-all-posts").onclick = (event) => {
         event.preventDefault();
-        user_profile_div.style.display = "none";
-        all_posts_div.innerHTML = ""
-        all_posts_div.style.display = "block"
-        fetch("/show_all_posts")
-        .then(response => response.json())
-        .then(posts => {
-            posts.forEach((post) =>{
-                const div_element = document.createElement("div");
-                div_element.style.border = '1px solid black'
-                div_element.style.margin = '2px'
-                div_element.style.textAlign = 'center'
-                const userProfileLink = document.createElement("a");
-                userProfileLink.href = "#";  
-                userProfileLink.classList.add("user-profile");
-                userProfileLink.textContent = post.user;
-                
-                // Attach click event listener to the user profile link
-
-                // Append user profile link and other content to the div
-                div_element.appendChild(document.createTextNode("User: "));
-                div_element.appendChild(userProfileLink);
-                div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
-
-                // Append the div to all_posts_div
-                all_posts_div.appendChild(div_element);
-            }
-            ) 
-            
-        });
+        show_all_pages(1)
     }
-
-    document.body.addEventListener("click", function(event) {
+    
+     document.body.addEventListener("click", function(event) {
         if (event.target.id === "follow-btn") {
 
            const username = document.querySelector("#username").textContent
@@ -157,9 +131,55 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.querySelector("#show-following-posts").onclick = function(event) {
         event.preventDefault()
+
+        show_following_posts()        
+    }
+
+    function navigation(page_number, last_page) {
+        navigation_div.style.display = "block"
+        navigation_div.innerHTML = ""
+        const nav_el = document.createElement("nav");
+        nav_el.setAttribute("aria-label", "Page navigation");
+        const ul_el = document.createElement("ul");
+        ul_el.classList.add("pagination")
+        
+        if (page_number !==1) {
+            const li_el_p = document.createElement("li")
+            li_el_p.classList.add("page-item")
+            const a_el_p = document.createElement("a")
+            a_el_p.classList.add("page-link")
+            a_el_p.href = "#"
+            a_el_p.setAttribute("id", "previous-page")
+            a_el_p.textContent = "Previous"
+            li_el_p.append(a_el_p)
+            ul_el.append(li_el_p)
+
+        }
+
+        if (page_number !==last_page) {
+            const li_el_n = document.createElement("li")
+            li_el_n.classList.add("page-item")
+            const a_el_n = document.createElement("a")
+            a_el_n.classList.add("page-link")
+            a_el_n.href = "#"
+            a_el_n.setAttribute("id", "next-page")
+            a_el_n.textContent = "Next"
+            li_el_n.append(a_el_n)
+            ul_el.append(li_el_n)
+
+        }      
+                
+        navigation_div.append(ul_el)
+
+        localStorage.setItem("current_page", page_number)
+
+    }
+
+    function show_following_posts() {
         const username = document.querySelector("#username").textContent
         
         user_profile_div.style.display = "none";
+        navigation_div.style.display = "none";
         all_posts_div.innerHTML = ""
         all_posts_div.style.display = "block"
         fetch(`/show_following_posts/${username}`)
@@ -184,7 +204,60 @@ document.addEventListener("DOMContentLoaded", function() {
             ) 
             
         });
-        
     }
+
+
+
+    function show_all_pages(page_number) {
+       
+        user_profile_div.style.display = "none";
+        all_posts_div.innerHTML = ""
+        all_posts_div.style.display = "block"
+        fetch(`show_all_posts/${page_number}`)
+        .then(response => response.json())
+        .then(data => {
+            data.posts.forEach((post) =>{
+                const div_element = document.createElement("div");
+                div_element.style.border = '1px solid black'
+                div_element.style.margin = '2px'
+                div_element.style.textAlign = 'center'
+                const userProfileLink = document.createElement("a");
+                userProfileLink.href = "#";  
+                userProfileLink.classList.add("user-profile");
+                userProfileLink.textContent = post.user;
+                
+                // Attach click event listener to the user profile link
+
+                // Append user profile link and other content to the div
+                div_element.appendChild(document.createTextNode("User: "));
+                div_element.appendChild(userProfileLink);
+                div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
+
+                // Append the div to all_posts_div
+                all_posts_div.appendChild(div_element);
+            }
+            )
+            
+            navigation(data.page_number, data.last_page)
+            console.log(`page number ${data.page_number} last_page ${data.last_page}`)
+            
+        });
+    }
+    
+    document.body.addEventListener("click" , function(event) {
+        if (event.target.classList.contains("page-link")) {
+            var current_page = localStorage.getItem("current_page")
+            current_page  = parseInt(current_page, 10)
+            event.preventDefault();
+            if (event.target.id === "next-page") {
+                page_number = current_page + 1
+                show_all_pages(page_number)
+            } else if (event.target.id === "previous-page") {
+                page_number = current_page - 1
+                show_all_pages(page_number)
+            }
+
+        }
+    } )
 
 })
