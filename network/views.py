@@ -90,14 +90,20 @@ def new_post(request):
 
 @login_required
 # @csrf_exempt ### There is not need for this as we are not posting anything. 
-def show_all_posts(request, page_number):
-    posts = Post.objects.all().order_by("timestamp")
+def show_posts(request, username, page_number):
+    if username == "all":
+        posts = Post.objects.all().order_by("timestamp")
+
+    else:
+        user = User.objects.get(username = username)
+        posts = Post.objects.filter(user = user).order_by("timestamp")
+
     paginator = Paginator(posts, 10)
     last_page = paginator.num_pages
     page_object = paginator.get_page(page_number) 
     serial_posts = [post.serialize() for post in page_object.object_list]
-    
     return JsonResponse({
+        "username": username,
         "posts": serial_posts,
         "page_number": page_number,
         "last_page": last_page
@@ -107,6 +113,8 @@ def show_all_posts(request, page_number):
 def show_user(request, username):
     user = User.objects.get(username = username)
     return JsonResponse(user.serialize())
+
+# TODO: remove after combining the show post functions. 
 
 @login_required
 def show_user_posts(request, username):
@@ -144,9 +152,3 @@ def follow_user(request, username):
             "error": "PUT request required."
         }, status=400)
 
-@login_required
-def show_following_posts(request, username):
-    user = User.objects.get(username = username)
-    following = user.following.all()
-    posts = Post.objects.filter(user__in=following).order_by("timestamp")
-    return JsonResponse([post.serialize() for post in posts], safe=False)

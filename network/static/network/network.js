@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.querySelector("#show-all-posts").onclick = (event) => {
         event.preventDefault();
-        show_all_pages(1)
+        show_posts("all", 1)
     }
     
      document.body.addEventListener("click", function(event) {
@@ -131,11 +131,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.querySelector("#show-following-posts").onclick = function(event) {
         event.preventDefault()
+        const username = document.querySelector("#username").textContent
 
-        show_following_posts()        
+        show_posts(username, 1)        
     }
 
-    function navigation(page_number, last_page) {
+    function navigation(username, page_number, last_page) {
         navigation_div.style.display = "block"
         navigation_div.innerHTML = ""
         const nav_el = document.createElement("nav");
@@ -172,48 +173,49 @@ document.addEventListener("DOMContentLoaded", function() {
         navigation_div.append(ul_el)
 
         localStorage.setItem("current_page", page_number)
+        localStorage.setItem("current_user_show_posts", username)
 
     }
 
-    function show_following_posts() {
-        const username = document.querySelector("#username").textContent
+    // function show_following_posts() {
+    //     const username = document.querySelector("#username").textContent
         
-        user_profile_div.style.display = "none";
-        navigation_div.style.display = "none";
-        all_posts_div.innerHTML = ""
-        all_posts_div.style.display = "block"
-        fetch(`/show_following_posts/${username}`)
-        .then(response => response.json())
-        .then(posts => {
-            posts.forEach((post) =>{
-                const div_element = document.createElement("div");
-                div_element.style.border = '1px solid black'
-                div_element.style.margin = '2px'
-                div_element.style.textAlign = 'center'
-                const userProfileLink = document.createElement("a");
-                userProfileLink.href = "#";  
-                userProfileLink.classList.add("user-profile");
-                userProfileLink.textContent = post.user;
+    //     user_profile_div.style.display = "none";
+    //     navigation_div.style.display = "none";
+    //     all_posts_div.innerHTML = ""
+    //     all_posts_div.style.display = "block"
+    //     fetch(`/show_following_posts/${username}`)
+    //     .then(response => response.json())
+    //     .then(posts => {
+    //         posts.forEach((post) =>{
+    //             const div_element = document.createElement("div");
+    //             div_element.style.border = '1px solid black'
+    //             div_element.style.margin = '2px'
+    //             div_element.style.textAlign = 'center'
+    //             const userProfileLink = document.createElement("a");
+    //             userProfileLink.href = "#";  
+    //             userProfileLink.classList.add("user-profile");
+    //             userProfileLink.textContent = post.user;
             
-                div_element.appendChild(document.createTextNode("User: "));
-                div_element.appendChild(userProfileLink);
-                div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
+    //             div_element.appendChild(document.createTextNode("User: "));
+    //             div_element.appendChild(userProfileLink);
+    //             div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
 
-                all_posts_div.appendChild(div_element);
-            }
-            ) 
+    //             all_posts_div.appendChild(div_element);
+    //         }
+    //         ) 
             
-        });
-    }
+    //     });
+    // }
 
 
 
-    function show_all_pages(page_number) {
+    function show_posts(username, page_number) {
        
         user_profile_div.style.display = "none";
         all_posts_div.innerHTML = ""
         all_posts_div.style.display = "block"
-        fetch(`show_all_posts/${page_number}`)
+        fetch(`show_posts/${username}/${page_number}`)
         .then(response => response.json())
         .then(data => {
             data.posts.forEach((post) =>{
@@ -238,23 +240,23 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             )
             
-            navigation(data.page_number, data.last_page)
-            console.log(`page number ${data.page_number} last_page ${data.last_page}`)
+            navigation(data.username, data.page_number, data.last_page)
             
         });
     }
     
     document.body.addEventListener("click" , function(event) {
         if (event.target.classList.contains("page-link")) {
+            const username= localStorage.getItem("current_user_show_posts")
             var current_page = localStorage.getItem("current_page")
             current_page  = parseInt(current_page, 10)
             event.preventDefault();
             if (event.target.id === "next-page") {
                 page_number = current_page + 1
-                show_all_pages(page_number)
+                show_posts(username, page_number)
             } else if (event.target.id === "previous-page") {
                 page_number = current_page - 1
-                show_all_pages(page_number)
+                show_posts(username, page_number)
             }
 
         }
