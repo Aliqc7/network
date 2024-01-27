@@ -138,5 +138,5 @@ def follow_user(request, username):
 def show_following_posts(request, username):
     user = User.objects.get(username = username)
     following = user.following.all()
-    posts = Post.objects.filter(user__in=following)
+    posts = Post.objects.filter(user__in=following).order_by("timestamp")
     return JsonResponse([post.serialize() for post in posts], safe=False)
