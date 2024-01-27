@@ -121,8 +121,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.body.addEventListener("click", function(event) {
         if (event.target.id === "follow-btn") {
-            const profile_user = localStorage.getItem("profile_user")
-            fetch(`follow_user/${profile_user}`, {
+
+           const username = document.querySelector("#username").textContent
+
+            fetch(`follow_user/${username}`, {
                 method: "PUT",
                 body: JSON.stringify({
                     follow_change: true 
@@ -151,6 +153,38 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log(result);
         });
         this.reset()
+    }
+
+    document.querySelector("#show-following-posts").onclick = function(event) {
+        event.preventDefault()
+        const username = document.querySelector("#username").textContent
+        
+        user_profile_div.style.display = "none";
+        all_posts_div.innerHTML = ""
+        all_posts_div.style.display = "block"
+        fetch(`/show_following_posts/${username}`)
+        .then(response => response.json())
+        .then(posts => {
+            posts.forEach((post) =>{
+                const div_element = document.createElement("div");
+                div_element.style.border = '1px solid black'
+                div_element.style.margin = '2px'
+                div_element.style.textAlign = 'center'
+                const userProfileLink = document.createElement("a");
+                userProfileLink.href = "#";  
+                userProfileLink.classList.add("user-profile");
+                userProfileLink.textContent = post.user;
+            
+                div_element.appendChild(document.createTextNode("User: "));
+                div_element.appendChild(userProfileLink);
+                div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
+
+                all_posts_div.appendChild(div_element);
+            }
+            ) 
+            
+        });
+        
     }
 
 })

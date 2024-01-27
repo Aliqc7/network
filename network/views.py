@@ -112,6 +112,7 @@ def get_username(request):
     })
 
 @csrf_exempt
+@login_required
 def follow_user(request, username):
     if request.method == "PUT":
         user = User.objects.get(username = username)
@@ -132,3 +133,10 @@ def follow_user(request, username):
         return JsonResponse({
             "error": "PUT request required."
         }, status=400)
+
+@login_required
+def show_following_posts(request, username):
+    user = User.objects.get(username = username)
+    following = user.following.all()
+    posts = Post.objects.filter(user__in=following)
+    return JsonResponse([post.serialize() for post in posts], safe=False)
