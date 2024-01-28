@@ -150,3 +150,34 @@ def follow_user(request, username):
             "error": "PUT request required."
         }, status=400)
 
+@csrf_exempt
+@login_required
+def edit_post(request, post_id):
+    if request.method == "PUT":
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return JsonResponse({
+                "error": "Post not found."
+            }, status=404)
+        data = json.loads(request.body)
+        new_text = data.get("text", "")
+        if new_text is not None:
+            post.text = new_text
+            post.save()
+            serial_post = post.serialize()
+            return JsonResponse({
+                "message": "Post updated successfully.",
+                "post": serial_post
+            }, status=200)
+        else:
+            return JsonResponse({
+                "error": "New text is required in the request."
+            }, status=400)
+    else:
+        return JsonResponse({
+            "error": "PUT request required."
+        }, status=400)
+
+
+

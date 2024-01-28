@@ -163,6 +163,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     function show_posts(username, posts_to_show, page_number) {
+        const active_user = document.querySelector("#username").textContent
         if (posts_to_show !== "user") {
             user_profile_div.style.display = "none";
         }    
@@ -180,14 +181,27 @@ document.addEventListener("DOMContentLoaded", function() {
                 userProfileLink.href = "#";  
                 userProfileLink.classList.add("user-profile");
                 userProfileLink.textContent = post.user;
+
+
                 
                 div_element.setAttribute("data-post-id", post.id);
 
                 // Append user profile link and other content to the div
                 div_element.appendChild(document.createTextNode("User: "));
                 div_element.appendChild(userProfileLink);
-                div_element.appendChild(document.createTextNode(` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0`));
 
+                const post_text = document.createElement("div")
+                post_text.innerHTML = ` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0  `
+                post_text.classList.add("post-text")
+                div_element.appendChild(post_text);
+
+                if (active_user === post.user) {
+                    const edit_link = document.createElement("a");
+                    edit_link.href ="#";
+                    edit_link.textContent = "Edit post";
+                    edit_link.classList.add("edit-link")
+                    div_element.appendChild(edit_link);
+                }
                 // Append the div to all_posts_div
                 all_posts_div.appendChild(div_element);
             }
@@ -215,5 +229,74 @@ document.addEventListener("DOMContentLoaded", function() {
 
         }
     } )
+
+    document.body.addEventListener("click", function (event){
+        if (event.target.classList.contains("edit-link")) {
+            const div_element = event.target.parentNode
+            const edit_form = document.createElement("form")
+            const textarea = document.createElement("textarea");
+
+            textarea.setAttribute("name", "edited-content");
+            textarea.setAttribute("rows", "4");
+            textarea.setAttribute("cols", "50");
+
+            const saveButton = document.createElement("input");
+            saveButton.setAttribute("type", "button");
+            saveButton.setAttribute("value", "Save");
+            saveButton.classList.add("save-edit");
+
+            const cancelButton = document.createElement("input");
+            cancelButton.setAttribute("type", "button");
+            cancelButton.setAttribute("value", "Cancel");
+            cancelButton.classList.add("cancel-edit");
+
+            // Append the label, textarea, and submit button to the form
+
+            edit_form.appendChild(textarea);
+            edit_form.appendChild(saveButton);
+            edit_form.appendChild(cancelButton);
+            div_element.appendChild(edit_form)
+
+        }
+    })
+
+    document.addEventListener("click", function(event) {
+        if (event.target.classList.contains("save-edit")) {
+            save_edit(event);
+        } else if (event.target.classList.contains("cancel-edit")) {
+            cancel_edit(event);
+        }
+
+    })
+
+    function cancel_edit(event){
+        const div_element = event.target.parentNode.parentNode;
+        const edit_form = event.target.parentNode;
+        div_element.removeChild(edit_form);
+    }
+
+    function save_edit(event){
+        const edit_form = event.target.parentNode
+        const new_text = edit_form.querySelector("textarea").value
+        const div_element = event.target.parentNode.parentNode;
+        const post_id = div_element.getAttribute("data-post-id");
+        console.log(div_element)
+        fetch(`edit_post/${post_id}`, {
+            method:"PUT",
+            body: JSON.stringify({
+                text: new_text
+            })
+        })
+        .then (response => response.json())
+        .then(data => {
+        div_element.removeChild(edit_form);
+        const post_text = div_element.querySelector(".post-text")
+        post_text.innerHTML = ` ---- Content: ${data.post.text}, ---- Time: ${data.post.timestamp} --- Likes : 0  `
+
+    })
+
+    }
+
+
 
 })

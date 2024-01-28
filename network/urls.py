@@ -12,5 +12,6 @@ urlpatterns = [
     path("show_posts/<str:username>/<str:posts_to_show>/<int:page_number>", views.show_posts, name="show_posts"),
     path("show_user/<str:username>", views.show_user, name="show_user"),
     path("get_username", views.get_username, name="get_username"),
-    path("follow_user/<str:username>", views.follow_user, name="follow_user")
+    path("follow_user/<str:username>", views.follow_user, name="follow_user"),
+    path("edit_post/<int:post_id>", views.edit_post, name="edit_post")
 ]
