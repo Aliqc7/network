@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 userProfileLink.classList.add("user-profile");
                 userProfileLink.textContent = post.user;
                 
-                // Attach click event listener to the user profile link
+                div_element.setAttribute("data-post-id", post.id);
 
                 // Append user profile link and other content to the div
                 div_element.appendChild(document.createTextNode("User: "));
