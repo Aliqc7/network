@@ -3,21 +3,30 @@
 {% block body %}
 
 
-    <div id="new-post">
-        <div>
-            <h4>New Post</h4>
-            <form id="new-post-form">
-                <!-- {% csrf_token %} -->
-                <div>
-                    <textarea name="text"></textarea>
-                </div>
-                <div>
-                    <input class = "submit-btn" type="submit" value="Post">
-                </div>
-                
-            </form>
+    <div id="new-post" class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>New Post</h4>
+            </div>
+            <div class="card-body">
+                <form id="new-post-form">
+                    <!-- {% csrf_token %} -->
+                    <div class="form-group">
+                        <textarea class="form-control" name="text" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary submit-btn" value="Post"></input>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
+
+
+
+
+
     <div id="user-profile-view">
         <div id="profile-info"></div>
         <div id="user-posts"></div>

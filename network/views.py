@@ -90,16 +90,16 @@ def new_post(request):
 @login_required
 def show_posts(request, username, posts_to_show, page_number):
     if username == "all":
-        posts = Post.objects.all().order_by("timestamp")
+        posts = Post.objects.all().order_by("-timestamp")
 
     elif posts_to_show == "following":
         user = User.objects.get(username=username)
         following = user.following.all()
-        posts = Post.objects.filter(user__in=following).order_by("timestamp")
+        posts = Post.objects.filter(user__in=following).order_by("-timestamp")
 
     elif posts_to_show == "user":
         user = User.objects.get(username=username)
-        posts = Post.objects.filter(user=user).order_by("timestamp")
+        posts = Post.objects.filter(user=user).order_by("-timestamp")
 
     paginator = Paginator(posts, 10)
     last_page = paginator.num_pages
