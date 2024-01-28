@@ -160,20 +160,25 @@ def edit_post(request, post_id):
             return JsonResponse({
                 "error": "Post not found."
             }, status=404)
-        data = json.loads(request.body)
-        new_text = data.get("text", "")
-        if new_text is not None:
-            post.text = new_text
-            post.save()
-            serial_post = post.serialize()
-            return JsonResponse({
-                "message": "Post updated successfully.",
-                "post": serial_post
-            }, status=200)
+
+        if request.user == post.user:
+            data = json.loads(request.body)
+            new_text = data.get("text", "")
+            if new_text is not None:
+                post.text = new_text
+                post.save()
+                serial_post = post.serialize()
+                return JsonResponse({
+                    "message": "Post updated successfully.",
+                    "post": serial_post
+                }, status=200)
+            else:
+                return JsonResponse({
+                    "error": "New text is required in the request."
+                }, status=400)
         else:
-            return JsonResponse({
-                "error": "New text is required in the request."
-            }, status=400)
+            return JsonResponse({"error": "Permission denied."}, status=403)
+
     else:
         return JsonResponse({
             "error": "PUT request required."
