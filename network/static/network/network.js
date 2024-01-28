@@ -182,6 +182,24 @@ document.addEventListener("DOMContentLoaded", function() {
                 userProfileLink.classList.add("user-profile");
                 userProfileLink.textContent = post.user;
 
+                const likes_link = document.createElement("a");
+                likes_link.href = "#";
+                if (post.liked_usernames.includes(active_user)) {
+                    likes_link.textContent = "Unlike";
+                } else {
+                    likes_link.textContent = "Like";
+                }
+
+                likes_link.classList.add("like-link");
+                likes_link.style.margin = "5px";
+
+                const total_like_div = document.createElement("div");
+                total_like_div.classList.add("total-likes")
+                total_like_div.innerHTML = `${post.likes} user(s) liked this post!`
+
+                const like_div = document.createElement("div")
+                like_div.appendChild(likes_link)
+                like_div.appendChild(total_like_div)
 
                 
                 div_element.setAttribute("data-post-id", post.id);
@@ -191,9 +209,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 div_element.appendChild(userProfileLink);
 
                 const post_text = document.createElement("div")
-                post_text.innerHTML = ` ---- Content: ${post.text}, ---- Time: ${post.timestamp} --- Likes : 0  `
+                post_text.innerHTML = ` ---- Content: ${post.text}, ---- Time: ${post.timestamp}`
                 post_text.classList.add("post-text")
                 div_element.appendChild(post_text);
+                div_element.appendChild(like_div);
+
 
                 if (active_user === post.user) {
                     const edit_link = document.createElement("a");
@@ -260,13 +280,34 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     })
 
-    document.addEventListener("click", function(event) {
+    document.body.addEventListener("click", function(event) {
         if (event.target.classList.contains("save-edit")) {
             save_edit(event);
         } else if (event.target.classList.contains("cancel-edit")) {
             cancel_edit(event);
         }
 
+    })
+
+    document.body.addEventListener("click", function(event) {
+    if (event.target.classList.contains("like-link")) {
+        const div_element = event.target.parentNode.parentNode
+        const post_id = div_element.getAttribute("data-post-id");
+        fetch(`like/${post_id}`,{
+            method: "PUT"
+        })
+            .then(response => response.json())
+            .then((data)=>{
+                const total_likes_div = div_element.querySelector(".total-likes")
+                total_likes_div.innerHTML =`${data.likes} user(s) liked this post!`
+                const like_link = div_element.querySelector(".like-link")
+                if (like_link.textContent === "Like") {
+                    like_link.textContent = "Unlike"
+                } else {
+                    like_link.textContent = "Like"
+                }
+            })
+    }
     })
 
     function cancel_edit(event){
@@ -291,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
         div_element.removeChild(edit_form);
         const post_text = div_element.querySelector(".post-text")
-        post_text.innerHTML = ` ---- Content: ${data.post.text}, ---- Time: ${data.post.timestamp} --- Likes : 0  `
+        post_text.innerHTML = ` ---- Content: ${data.post.text}, ---- Time: ${data.post.timestamp}`
 
     })
 
